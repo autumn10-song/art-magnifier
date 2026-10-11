@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>명화 돋보기 탐험</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>🔍 명화 돋보기 탐험</h1>
+    <div class="topbar-actions">
+      <button type="button" id="addBtn" class="btn primary">➕ 작품 추가</button>
+      <button type="button" id="fullscreenBtn" class="btn">⛶ 전체 화면</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="viewer" aria-label="작품 보기">
+      <div class="stage" id="stage">
+        <button type="button" class="nav prev" id="prevBtn" aria-label="이전 작품">‹</button>
+        <div class="frame" id="frame" tabindex="0"
+             aria-label="작품 위에서 마우스나 손가락을 움직이면 돋보기로 확대해 볼 수 있어요. 키보드 화살표로도 움직일 수 있어요.">
+          <img id="artImage" alt="" draggable="false">
+          <div class="pins" id="pins"></div>
+          <div class="focus-dot" id="focusDot" hidden></div>
+          <div class="lens" id="lens" hidden></div>
+        </div>
+        <div class="stage-message" id="stageMessage" hidden></div>
+        <button type="button" class="nav next" id="nextBtn" aria-label="다음 작품">›</button>
+        <button type="button" class="btn exit-full" id="exitFullBtn">✕ 전체 화면 끝내기</button>
+      </div>
+      <p class="usage">🖱️ 마우스: 움직이며 살펴보고, <b>클릭하면 돋보기가 멈춰요</b> · ✋ 태블릿: 손가락으로 끌어서 살펴보기</p>
+      <div class="caption">
+        <h2 id="artTitle"></h2>
+        <p id="artMeta"></p>
+      </div>
+      <nav class="thumbs" id="thumbs" aria-label="작품 목록"></nav>
+    </section>
+
+    <aside class="panel">
+      <details class="card" open>
+        <summary>🔧 돋보기 설정</summary>
+        <label class="slider">
+          <span>확대 배율 <output id="zoomOut">3배</output></span>
+          <input type="range" id="zoomInput" min="1.5" max="8" step="0.5" value="3">
+        </label>
+        <label class="slider">
+          <span>돋보기 크기 <output id="sizeOut">200px</output></span>
+          <input type="range" id="sizeInput" min="100" max="360" step="10" value="200">
+        </label>
+        <label class="check">
+          <input type="checkbox" id="liftInput" checked>
+          <span>손가락으로 움직일 때 돋보기를 손가락 위에 띄우기</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="squareInput">
+          <span>네모 돋보기</span>
+        </label>
+      </details>
+
+      <details class="card" open>
+        <summary>🤔 관찰 질문</summary>
+        <ol id="artQuestions" class="questions"></ol>
+        <ul id="commonQuestions" class="questions common"></ul>
+      </details>
+
+      <details class="card" open>
+        <summary>📍 나의 발견 기록</summary>
+        <p class="hint">돋보기로 특징을 찾았으면 <b>여기 발견!</b>을 눌러 표시하고, 무엇을 찾았는지 적어 보세요.</p>
+        <div class="row">
+          <button type="button" id="pinBtn" class="btn primary">📍 여기 발견!</button>
+          <button type="button" id="togglePinsBtn" class="btn">표시 숨기기</button>
+        </div>
+        <ol id="findings" class="findings"></ol>
+        <p class="empty" id="findingsEmpty">아직 발견한 특징이 없어요.</p>
+        <div class="row">
+          <button type="button" id="printBtn" class="btn">🖨️ 기록 인쇄</button>
+          <button type="button" id="clearFindingsBtn" class="btn danger">모두 지우기</button>
+        </div>
+      </details>
+    </aside>
+  </main>
+
+  <dialog id="addDialog" class="dialog">
+    <form method="dialog" id="addForm">
+      <h2>➕ 작품 추가하기</h2>
+      <p class="hint">컴퓨터·태블릿에 있는 사진을 고르거나, 인터넷 이미지 주소를 붙여 넣으세요. 작품 이미지를 화면 위로 끌어다 놓아도 추가돼요.</p>
+
+      <fieldset>
+        <legend>1. 이미지</legend>
+        <label class="field">
+          <span>파일에서 고르기 (여러 개 가능)</span>
+          <input type="file" id="fileInput" accept="image/*" multiple>
+        </label>
+        <div class="or">또는</div>
+        <label class="field">
+          <span>이미지 주소(URL)</span>
+          <input type="url" id="urlInput" placeholder="https://.../작품.jpg">
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. 작품 정보 (선택)</legend>
+        <label class="field"><span>작품 이름</span><input type="text" id="titleInput" placeholder="비워 두면 파일 이름을 사용해요"></label>
+        <label class="field"><span>작가</span><input type="text" id="artistInput"></label>
+        <label class="field"><span>제작 연도</span><input type="text" id="yearInput"></label>
+        <label class="field"><span>관찰 질문 (한 줄에 하나씩)</span><textarea id="questionsInput" rows="3"></textarea></label>
+      </fieldset>
+
+      <p class="error" id="addError" hidden></p>
+      <div class="row end">
+        <button type="button" class="btn" id="addCancel">취소</button>
+        <button type="submit" class="btn primary" id="addSubmit" value="add">추가하기</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="drop-overlay" id="dropOverlay" hidden>여기에 놓으면 작품이 추가돼요 🖼️</div>
+
+  <section class="print-sheet" id="printSheet" aria-hidden="true"></section>
+
+  <script src="js/lens.js"></script>
+  <script src="js/artworks.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
